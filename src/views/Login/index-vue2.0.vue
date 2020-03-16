@@ -7,17 +7,34 @@
           v-for="item in menuTab"
           :key="item.id"
           @click="toggleMenu(item)"
-        >{{ item.txt }}</li>
+        >
+          {{ item.txt }}
+        </li>
       </ul>
-      <el-form :model="ruleForm" status-icon :rules="rules" ref="ruleForm" class="login-form">
+      <el-form
+        :model="ruleForm"
+        status-icon
+        :rules="rules"
+        ref="ruleForm"
+        class="login-form"
+      >
         <el-form-item prop="username">
           <label>邮箱</label>
-          <el-input type="text" v-model="ruleForm.username" autocomplete="off"></el-input>
+          <el-input
+            type="text"
+            v-model="ruleForm.username"
+            autocomplete="off"
+          ></el-input>
         </el-form-item>
 
         <el-form-item prop="pass">
           <label>密码</label>
-          <el-input type="password" v-model="ruleForm.pass" autocomplete="off" maxlength="20"></el-input>
+          <el-input
+            type="password"
+            v-model="ruleForm.pass"
+            autocomplete="off"
+            maxlength="20"
+          ></el-input>
         </el-form-item>
 
         <el-form-item prop="confirmPass" v-if="model === 'register'">
@@ -37,12 +54,17 @@
               <el-input v-model.number="ruleForm.code" maxlength="6"></el-input>
             </el-col>
             <el-col :span="9">
-              <el-button type="success" class="block" @click="getSms()">获取验证码</el-button>
+              <el-button type="success" class="block">获取验证码</el-button>
             </el-col>
           </el-row>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="submitForm('ruleForm')" class="login-btn block">登录</el-button>
+          <el-button
+            type="primary"
+            @click="submitForm('ruleForm')"
+            class="login-btn block"
+            >登录</el-button
+          >
         </el-form-item>
       </el-form>
     </div>
@@ -56,13 +78,11 @@ import {
   chekPassword,
   chekCode
 } from "@/utils/validate";
-import { reactive, ref, isRef, onMounted } from "@vue/composition-api";
-import { GetSms } from "@/api/login";
 export default {
   name: "login",
-  setup(props, context) {
+  data() {
     //验证邮箱
-    let validateUserName = (rule, value, callback) => {
+    var validateUserName = (rule, value, callback) => {
       if (value === "") {
         callback(new Error("请输入邮箱"));
       } else if (chekEmail(value)) {
@@ -72,9 +92,9 @@ export default {
       }
     };
     //验证密码
-    let validatePass = (rule, value, callback) => {
-      ruleForm.pass = stripscript(value);
-      value = ruleForm.pass;
+    var validatePass = (rule, value, callback) => {
+      this.ruleForm.pass = stripscript(value);
+      value = this.ruleForm.pass;
       if (value === "") {
         callback(new Error("请输入密码"));
       } else if (chekPassword(value)) {
@@ -84,12 +104,12 @@ export default {
       }
     };
     //验证重复密码
-    let validateConfirmPass = (rule, value, callback) => {
-      ruleForm.confirmPass = stripscript(value);
-      value = ruleForm.confirmPass;
+    var validateConfirmPass = (rule, value, callback) => {
+      this.ruleForm.confirmPass = stripscript(value);
+      value = this.ruleForm.confirmPass;
       if (value === "") {
         callback(new Error("请输入密码"));
-      } else if (value != ruleForm.pass) {
+      } else if (value != this.ruleForm.pass) {
         callback(new Error("两次密码不一致"));
       } else if (chekPassword(value)) {
         callback(new Error("密码格式有误,应为6-20位的数字和字母的组合"));
@@ -98,10 +118,9 @@ export default {
       }
     };
     //验证验证码
-    let validateCode = (rule, value, callback) => {
-      ruleForm.code = stripscript(value);
-      value = ruleForm.code;
-
+    var validateCode = (rule, value, callback) => {
+      this.ruleForm.code = stripscript(value);
+      value = this.ruleForm.code;
       if (value === "") {
         callback(new Error("验证码不能为空"));
       } else if (chekCode(value)) {
@@ -110,54 +129,41 @@ export default {
         callback();
       }
     };
-    /*
-     *声明数据
-     */
-    //登录注册选项卡
-    const menuTab = reactive([
-      { txt: "登录", current: true, type: "login" },
-      { txt: "注册", current: false, type: "register" }
-    ]);
-    //切换模块
-    const model = ref("login");
-    //表单绑定数据
-    const ruleForm = reactive({
-      username: "",
-      pass: "",
-      confirmPass: "",
-      code: ""
-    });
-    //表单验证
-    const rules = reactive({
-      username: [{ validator: validateUserName, trigger: "blur" }],
-      pass: [{ validator: validatePass, trigger: "blur" }],
-      confirmPass: [{ validator: validateConfirmPass, trigger: "blur" }],
-      code: [{ validator: validateCode, trigger: "blur" }]
-    });
-    /*
-     * 声明函数
-     */
-
-    //切换菜单
-    const toggleMenu = data => {
-      menuTab.forEach(element => {
+    return {
+      //登录注册选项卡
+      menuTab: [
+        { txt: "登录", current: true, type: "login" },
+        { txt: "注册", current: false, type: "register" }
+      ],
+      //模块值
+      model: "login",
+      ruleForm: {
+        username: "",
+        pass: "",
+        confirmPass: "",
+        code: ""
+      },
+      rules: {
+        username: [{ validator: validateUserName, trigger: "blur" }],
+        pass: [{ validator: validatePass, trigger: "blur" }],
+        confirmPass: [{ validator: validateConfirmPass, trigger: "blur" }],
+        code: [{ validator: validateCode, trigger: "blur" }]
+      }
+    };
+  },
+  created() {},
+  mounted() {},
+  methods: {
+    toggleMenu(data) {
+      this.menuTab.forEach(element => {
         element.current = false;
       });
       data.current = true;
-      model.value = data.type;
-    };
+      this.model = data.type;
+    },
 
-    //获取验证码
-    const getSms = () => {
-      let data = {
-        username: ruleForm.username
-      };
-      GetSms(data);
-    };
-
-    //提交表单
-    const submitForm = formName => {
-      context.refs[formName].validate(valid => {
+    submitForm(formName) {
+      this.$refs[formName].validate(valid => {
         if (valid) {
           alert("submit!");
         } else {
@@ -165,21 +171,7 @@ export default {
           return false;
         }
       });
-    };
-
-    onMounted(() => {
-      console.log(process.env.VUE_APP_TEST);
-    });
-
-    return {
-      menuTab,
-      model,
-      ruleForm,
-      rules,
-      toggleMenu,
-      getSms,
-      submitForm
-    };
+    }
   }
 };
 </script>
